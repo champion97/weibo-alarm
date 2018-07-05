@@ -1,4 +1,2 @@
-module.exports.config ={
-    users : ['5236284029'],
-    sckey : ''
-}
+module.exports.users = ['5236284029'];
+module.exports.sckey = ''
