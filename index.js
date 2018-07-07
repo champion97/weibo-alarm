@@ -1,13 +1,10 @@
 const axios = require('./utils/axios');
 const weiboUtils = require('./utils/weibo');
-const config = require('./config')
+const config = require('./config');
 
 
-
-main = async (uid) => {
-    let link = ''
+var main = async (uid, compareKey) => {
     const ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36';
-
     const containerResponse = await axios({
         method: 'get',
         url: `https://m.weibo.cn/api/container/getIndex?type=uid&value=${uid}`,
@@ -43,31 +40,32 @@ main = async (uid) => {
         }),
     };
 
-    // push
-    if(link !== data.item[0].link){
+    if(!compareKey){
+        console.log(`开始监听${name}的新微博`);
+    }else if(data && compareKey !== data.item[0].link){
         push2WeChat(name, data.item[0])
+    }else{
+        console.log(`${name}没有新微博`);
     }
-    link = data.item[0].link;
-
-    setTimeout(()=>{main()},1000*60*2)
+    setTimeout(()=>{main(uid, data.item[0].link)}, config.frequency);
 };
 
-push2WeChat = (userName, data)=>{
+var push2WeChat = (userName, data)=>{
     const SCKEY = config.sckey;
-
     axios.get(`https://sc.ftqq.com/${SCKEY}.send`, {
         params: {
             text: `${userName}发表了新微博`,
-            desp: `${data.description}(${data.link})`
+            desp: data
         }
     }).then(function (response) {
-        console.log(`${userName} 发表了新微博`);
+        console.log(`${userName}的新微博已成功推送到微信`);
     }).catch(function (error) {
-    }).then(function () {
+        console.error(error);
     });
 };
 
-
-for (let i = 0; i < config.users.length; i++) {
-    main(config.users[i]);
-}
+process.argv.forEach((val, index) => {
+    if (index >= 2) {
+        main(val)
+    }
+});
