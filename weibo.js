@@ -36,7 +36,7 @@ const fetchWeiBoData = async (userId) => {
         });
         userName = containerResponse.data.data.userInfo.screen_name;
         // console.log(`${new Date()} - 正在监控「${userName}」`)
-        console.log("keep alive....")
+        console.log(`${new Date} - keep alive....`)
         containerId = containerResponse.data.data.tabsInfo.tabs[1].containerid;
         const response = await axios({
             method: 'get',
