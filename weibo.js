@@ -1,17 +1,13 @@
 const axios = require('./utils/axios');
 const weiboUtils = require('./utils/weibo');
 const config = require('./config');
-const SCKEY = config.sckey;
+const sckey = config.sckey;
 const ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36';
 const headers = {
     'User-Agent': ua,
     Referer: 'https://m.weibo.cn/',
 }
 
-// example:
-// '保护小洁': {
-//     pushedIds: []
-// }
 let store = {};
 
 // 获取ContainerId
@@ -22,7 +18,7 @@ const getContainerIdURL = (userId) => {
 // 获取微博数据(10条)
 const getWeiBoDataURL = (userId, containerId) => {
     return `https://m.weibo.cn/api/container/getIndex?type=uid&value=${userId}&containerid=${containerId}`;
-}
+};
 
 // 获取微博数据
 const fetchWeiBoData = async (userId) => {
@@ -36,7 +32,7 @@ const fetchWeiBoData = async (userId) => {
         });
         userName = containerResponse.data.data.userInfo.screen_name;
         // console.log(`${new Date()} - 正在监控「${userName}」`)
-        console.log(`${new Date} - keep alive....`)
+        console.log(`${new Date} - keep alive....`);
         containerId = containerResponse.data.data.tabsInfo.tabs[1].containerid;
         const response = await axios({
             method: 'get',
@@ -53,15 +49,15 @@ const fetchWeiBoData = async (userId) => {
     } catch (error) {
         console.error(error);
     }
-}
+};
 
-const push2WeChat = (userId,userName, items) => {
+const push2WeChat = (userId, userName, items) => {
     items.forEach((item) => {
         // 推送过的不再推送
         if (store[`${userId}`].includes(item.id)) {
-            return
+            return;
         }
-        axios.get(`https://sc.ftqq.com/${SCKEY}.send`, {
+        axios.get(`https://sc.ftqq.com/${sckey}.send`, {
             params: {
                 text: `${userName}发表了新微博`,
                 desp: item.link
@@ -72,15 +68,15 @@ const push2WeChat = (userId,userName, items) => {
         }).catch(function (error) {
             console.error(error);
         });
-    })
+    });
 
 };
 
 process.argv.forEach((userId, index) => {
-    store[`${userId}`]=[]
+    store[`${userId}`] = [];
     if (index >= 2) {
         setInterval(function () {
             fetchWeiBoData(userId)
-        }, config.frequency)
+        }, config.frequency);
     }
 });
